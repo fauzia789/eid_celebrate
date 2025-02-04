@@ -1,3 +1,4 @@
+// second_screen.dart
 import 'package:flutter/material.dart';
 import './third_screen.dart';
 
@@ -47,14 +48,13 @@ class SecondScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20.0),
-
-              // Button
+              // Button to go to ThirdScreen (Activities)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  backgroundColor: Colors.amber.shade500, // Softer yellow shade for button
+                  backgroundColor: Colors.amber.shade500,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
                 ),

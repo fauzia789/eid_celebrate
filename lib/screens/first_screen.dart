@@ -1,4 +1,6 @@
+// first_screen.dart
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import './second_screen.dart';
 
 class FirstScreen extends StatelessWidget {
@@ -17,17 +19,16 @@ class FirstScreen extends StatelessWidget {
             fit: BoxFit.cover,
             height: double.infinity,
             width: double.infinity,
-            color: const Color(0x33000000), 
+            color: const Color(0x33000000), // 0.2 opacity
             colorBlendMode: BlendMode.darken,
           ),
-
           // Centered input field
           Align(
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
               child: Column(
-                mainAxisSize: MainAxisSize.min, 
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: nameController,
@@ -43,31 +44,32 @@ class FirstScreen extends StatelessWidget {
                         borderSide: const BorderSide(color: Colors.white, width: 2.0),
                       ),
                       filled: true,
-                      fillColor: Colors.black, 
+                      fillColor: Colors.black,
                     ),
                     style: const TextStyle(color: Colors.white),
                   ),
                   const SizedBox(height: 20.0),
-
-                  
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      backgroundColor: const Color(0xFFFFC107), 
-                      foregroundColor: Colors.white, 
+                      backgroundColor: const Color(0xFFFFC107), // Pastel yellow
+                      foregroundColor: Colors.white, // white text
                       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
                       shadowColor: Colors.amber.shade700,
-                      elevation: 5, 
+                      elevation: 5,
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (nameController.text.isNotEmpty) {
-                        Navigator.push(
+                        // Save the user name in SharedPreferences
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        await prefs.setString('userName', nameController.text);
+                        // Navigate to SecondScreen and replace the current screen
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                SecondScreen(userName: nameController.text),
+                            builder: (context) => SecondScreen(userName: nameController.text),
                           ),
                         );
                       }
