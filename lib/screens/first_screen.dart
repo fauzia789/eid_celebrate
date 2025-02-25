@@ -14,12 +14,12 @@ class FirstScreen extends StatelessWidget {
       body: Stack(
         children: [
           // Full-screen background image
-          Image(
-            image: const AssetImage('assets/images/bg-eid.jpg'),
+          const Image(
+            image: AssetImage('assets/images/bg-eid.jpg'),
             fit: BoxFit.cover,
             height: double.infinity,
             width: double.infinity,
-            color: const Color(0x33000000), // 0.2 opacity
+            color: Color(0x33000000), // 0.2 opacity
             colorBlendMode: BlendMode.darken,
           ),
           // Centered input field

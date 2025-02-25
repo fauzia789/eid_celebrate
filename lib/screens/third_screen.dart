@@ -46,9 +46,9 @@ class _ThirdScreenState extends State<ThirdScreen> {
                 leading: Container(
                   width: 40,
                   height: 40,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFFFFEB3B),
+                    color: Color(0xFFFFEB3B),
                   ),
                   child: const Icon(Icons.circle, color: Colors.black),
                 ),

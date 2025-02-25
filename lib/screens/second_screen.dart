@@ -5,7 +5,7 @@ import './third_screen.dart';
 class SecondScreen extends StatelessWidget {
   final String userName;
 
-  const SecondScreen({required this.userName, Key? key}) : super(key: key);
+  const SecondScreen({required this.userName, super.key});
 
   @override
   Widget build(BuildContext context) {
