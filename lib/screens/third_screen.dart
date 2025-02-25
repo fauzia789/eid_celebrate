@@ -1,4 +1,3 @@
-// third_screen.dart
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -20,8 +19,33 @@ class _ThirdScreenState extends State<ThirdScreen> {
   );
 
   final AudioPlayer _audioPlayer = AudioPlayer();
-  int? _playingIndex;
-  bool _isPlaying = false;
+  int? _playingIndex; 
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        setState(() => _playingIndex = null);
+      }
+    });
+  }
+
+  Future<void> _playOrPause(int index) async {
+    if (_playingIndex == index) {
+      await _audioPlayer.stop();
+      setState(() => _playingIndex = null);
+    } else {
+      try {
+        await _audioPlayer.setAsset(items[index]['sound']!);
+        await _audioPlayer.play();
+        setState(() => _playingIndex = index);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error playing sound: ${e.toString()}')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,58 +63,22 @@ class _ThirdScreenState extends State<ThirdScreen> {
               color: Colors.white,
               elevation: 5,
               margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15.0)),
               child: ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFFFFEB3B),
-                  ),
-                  child: const Icon(Icons.circle, color: Colors.black),
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFFFFEB3B),
+                  backgroundImage: AssetImage(items[index]['icon']!),
                 ),
                 title: Text(
                   items[index]['text']!,
-                  style: const TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                  style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.black),
                 ),
                 trailing: IconButton(
                   icon: Icon(
-                    _isPlaying && _playingIndex == index
-                        ? Icons.pause
-                        : Icons.play_arrow,
+                    _playingIndex == index ? Icons.pause : Icons.play_arrow,
                     color: const Color(0xFFFFEB3B),
                   ),
-                  onPressed: () async {
-                    if (_isPlaying && _playingIndex == index) {
-                      await _audioPlayer.stop();
-                      setState(() {
-                        _isPlaying = false;
-                        _playingIndex = null;
-                      });
-                    } else {
-                      try {
-                        await _audioPlayer.setAsset(items[index]['sound']!);
-                        _audioPlayer.play();
-                        setState(() {
-                          _isPlaying = true;
-                          _playingIndex = index;
-                        });
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Error playing sound: ${e.toString()}'),
-                          ),
-                        );
-                      }
-                    }
-                  },
+                  onPressed: () => _playOrPause(index),
                 ),
               ),
             );

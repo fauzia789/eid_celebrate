@@ -1,28 +1,55 @@
-// first_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './second_screen.dart';
 
-class FirstScreen extends StatelessWidget {
-  final TextEditingController nameController = TextEditingController();
+class FirstScreen extends StatefulWidget {
+  const FirstScreen({super.key});
 
-  FirstScreen({super.key});
+  @override
+  _FirstScreenState createState() => _FirstScreenState();
+}
+
+class _FirstScreenState extends State<FirstScreen> {
+  final TextEditingController nameController = TextEditingController();
+  String? errorMessage;
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveNameAndNavigate() async {
+    String name = nameController.text.trim();
+    if (name.isEmpty) {
+      setState(() {
+        errorMessage = "Please enter your name.";
+      });
+      return;
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', name);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SecondScreen(userName: name)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Full-screen background image
           const Image(
             image: AssetImage('assets/images/bg-eid.jpg'),
             fit: BoxFit.cover,
             height: double.infinity,
             width: double.infinity,
-            color: Color(0x33000000), // 0.2 opacity
+            color: Color(0x33000000),
             colorBlendMode: BlendMode.darken,
           ),
-          // Centered input field
           Align(
             alignment: Alignment.center,
             child: Padding(
@@ -45,8 +72,11 @@ class FirstScreen extends StatelessWidget {
                       ),
                       filled: true,
                       fillColor: Colors.black,
+                      errorText: errorMessage,
                     ),
                     style: const TextStyle(color: Colors.white),
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _saveNameAndNavigate(),
                   ),
                   const SizedBox(height: 20.0),
                   ElevatedButton(
@@ -54,26 +84,13 @@ class FirstScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      backgroundColor: const Color(0xFFFFC107), // Pastel yellow
-                      foregroundColor: Colors.white, // white text
+                      backgroundColor: const Color(0xFFFFC107),
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
                       shadowColor: Colors.amber.shade700,
                       elevation: 5,
                     ),
-                    onPressed: () async {
-                      if (nameController.text.isNotEmpty) {
-                        // Save the user name in SharedPreferences
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                        await prefs.setString('userName', nameController.text);
-                        // Navigate to SecondScreen and replace the current screen
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SecondScreen(userName: nameController.text),
-                          ),
-                        );
-                      }
-                    },
+                    onPressed: _saveNameAndNavigate,
                     child: const Text(
                       'Submit',
                       style: TextStyle(fontWeight: FontWeight.bold),

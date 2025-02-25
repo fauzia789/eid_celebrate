@@ -1,4 +1,3 @@
-// main.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/first_screen.dart';
@@ -8,25 +7,37 @@ import 'services/notification-helper.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize notifications
-  await NotificationHelper.initializeNotifications();
-  
-  // Schedule the event notification if needed.
-  // Set your event date here. For example, February 14, 2025.
-  DateTime eventDate = DateTime(2025, 2, 14);
-  if (eventDate.isAfter(DateTime.now())) {
-    await NotificationHelper.scheduleNotification(eventDate);
-  }
+  await initializeApp();
   
   runApp(const MyApp());
+}
+
+Future<void> initializeApp() async {
+  try {
+    // Initialize notifications
+    await NotificationHelper.initializeNotifications();
+
+    // Schedule event notification if the event is in the future
+    DateTime eventDate = DateTime(2025, 2, 14);
+    if (eventDate.isAfter(DateTime.now())) {
+      await NotificationHelper.scheduleNotification(eventDate);
+    }
+  } catch (e) {
+    debugPrint("Error initializing app: $e");
+  }
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  Future<String?> _getUserName() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('userName');
+  Future<String> _getUserName() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      return prefs.getString('userName') ?? ''; 
+    } catch (e) {
+      debugPrint("Error fetching user name: $e");
+      return ''; 
+    }
   }
 
   @override
@@ -34,20 +45,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Eid Celebration App',
-      home: FutureBuilder<String?>(
+      home: FutureBuilder<String>(
         future: _getUserName(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
-          } else {
-            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-              return SecondScreen(userName: snapshot.data!);
-            } else {
-              return FirstScreen();
-            }
           }
+          
+          String userName = snapshot.data ?? '';
+          return userName.isNotEmpty ? SecondScreen(userName: userName) : const FirstScreen();
         },
       ),
     );
